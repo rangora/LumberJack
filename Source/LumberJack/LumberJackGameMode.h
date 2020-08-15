@@ -1,0 +1,18 @@
+// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/GameModeBase.h"
+#include "LumberJackGameMode.generated.h"
+
+UCLASS(minimalapi)
+class ALumberJackGameMode : public AGameModeBase {
+	GENERATED_BODY()
+
+public:
+	ALumberJackGameMode();
+};
+
+
+

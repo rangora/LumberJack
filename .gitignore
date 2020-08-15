@@ -1,0 +1,21 @@
+## visual studio
+.vs
+LumberJack.sln
+
+## build
+Binaries
+Build
+Intermediate
+Saved
+Plugins
+
+## asset
+Content
+Resources
+
+## Temp Resources
+Source/FBX
+Source/Maya
+Source/MotionBuilder
+Source/SKMannequin_A_Pose
+Source/SKMannequin_T_Pose
