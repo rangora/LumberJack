@@ -40,7 +40,7 @@ protected:
 
 private:
 	enum {
-		_interactDistant = 170
+		_interactDistant = 250
 	};
 };
 

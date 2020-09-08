@@ -7,7 +7,7 @@
 #include "BaseUI.generated.h"
 
 
-class ALumberJackCharacter;
+class APlayerCharacter;
 class ALumberJackPlayerController;
 
 UCLASS()
@@ -17,6 +17,6 @@ class LUMBERJACK_API UBaseUI : public UUserWidget {
 public:
 	UBaseUI(const FObjectInitializer& ObjectIntializer);
 
-	ALumberJackCharacter*  IPlayer;
+	APlayerCharacter*  IPlayer;
 	ALumberJackPlayerController* IController;
 };

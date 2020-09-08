@@ -2,7 +2,7 @@
 
 #include "LumberJackGameMode.h"
 #include "LumberJackPlayerController.h"
-#include "LumberJackCharacter.h"
+#include "Player/PlayerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ALumberJackGameMode::ALumberJackGameMode() {

@@ -4,7 +4,7 @@
 #include "MainGameMode.h"
 #include "MainGameState.h"
 #include "../LumberJackPlayerController.h"
-#include "../LumberJackCharacter.h"
+#include "../Player/PlayerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 

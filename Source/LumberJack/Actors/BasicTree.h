@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Interactable.h"
-#include "../Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Public/DestructibleComponent.h"
-#include "../Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Public/DestructibleMesh.h"
+#include "Components/InstancedStaticMeshComponent.h"
 #include "GameFramework/Actor.h"
 #include "BasicTree.generated.h"
 
@@ -15,20 +14,21 @@ class LUMBERJACK_API ABasicTree : public AInteractable {
 	
 public:	
 	ABasicTree();
-
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginPlay() override;
 	virtual void Interact(ACharacter* ACharacter);
 
 	void CuttingDown();
+	void DestroyBody();
 
-	float health = 500.f;
-
-private:
+	float health = 100.f;
 	bool bDestructed = false;
 
 	class UStaticMeshComponent* Stump;
-	class UDestructibleComponent* Destructible;
 	class UStaticMeshComponent* Body;
 
 	class UParticleSystemComponent* ParticleComponent;
+
+	FTimerHandle DestroyTimer;
 };
+

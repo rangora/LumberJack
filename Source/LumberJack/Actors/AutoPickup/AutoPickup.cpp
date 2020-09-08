@@ -2,7 +2,7 @@
 
 
 #include "AutoPickup.h"
-#include "LumberJack/LumberJackCharacter.h"
+#include "../../Player/PlayerCharacter.h"
 
 AAutoPickup::AAutoPickup() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -23,7 +23,7 @@ void AAutoPickup::Tick(float DeltaTime) {
 
 void AAutoPickup::Collect(ACharacter* Player) {
 	float _speed = 0.03;
-	auto IPlayer = Cast<ALumberJackCharacter>(Player);
+	auto IPlayer = Cast<APlayerCharacter>(Player);
 	
 	FVector _playerLocation = IPlayer->GetActorLocation();
 	FVector _direction		= _playerLocation - GetActorLocation();

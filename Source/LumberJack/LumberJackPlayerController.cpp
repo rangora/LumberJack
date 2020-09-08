@@ -5,12 +5,11 @@
 #include "Actors/BasicTree.h"
 #include "Actors/Interactable.h"
 #include "EngineGlobals.h"
-#include "LumberJackCharacter.h"
 #include "Runtime/Engine/Classes/Engine/Engine.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Runtime/Engine/Classes/Components/DecalComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
-#include "LumberJackCharacter.h"
+#include "Player/PlayerCharacter.h"
 #include "Engine/World.h"
 
 
@@ -49,7 +48,7 @@ void ALumberJackPlayerController::BeginPlay() {
 
 void ALumberJackPlayerController::MoveToMouseCursor() {
 	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled()) 	{
-		if (ALumberJackCharacter* MyPawn = Cast<ALumberJackCharacter>(GetPawn()))
+		if (APlayerCharacter* MyPawn = Cast<APlayerCharacter>(GetPawn()))
 			if (MyPawn->CursorToWorld)
 				UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, MyPawn->CursorToWorld->GetComponentLocation());
 	}
@@ -75,7 +74,7 @@ void ALumberJackPlayerController::MoveToTouchLocation(const ETouchIndex::Type Fi
 		auto Target = Cast<AInteractable>(Hit.GetActor());
 
 		if (IsValid(Target)) {
-			auto IPlayer = Cast<ALumberJackCharacter>(GetPawn());
+			auto IPlayer = Cast<APlayerCharacter>(GetPawn());
 			FVector _playerLocation = IPlayer->GetActorLocation();
 			FVector _targetLocation = Target->GetActorLocation();
 
@@ -83,7 +82,7 @@ void ALumberJackPlayerController::MoveToTouchLocation(const ETouchIndex::Type Fi
 
 			if (_distance < float(_interactDistant)) {
 				// Can interact..
-				IPlayer->InteractPoint = Hit.Location;
+				IPlayer->HitVector = Hit.Location;
 				IPlayer->InteractTarget = Target;
 				IPlayer->LookTarget();
 				Target->Interact(IPlayer);
@@ -113,10 +112,11 @@ void ALumberJackPlayerController::SetNewMoveDestination(const FVector DestLocati
 void ALumberJackPlayerController::Interact() {
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	
 
 	if (Hit.bBlockingHit) {
 		auto Target = Cast<AInteractable>(Hit.GetActor());
-		auto IPlayer =Cast<ALumberJackCharacter>(GetPawn());
+		auto IPlayer =Cast<APlayerCharacter>(GetPawn());
 		IPlayer->HitVector = Hit.Location;
 
 		if (IsValid(Target)) {
@@ -127,7 +127,7 @@ void ALumberJackPlayerController::Interact() {
 
 			if (_distance < float(_interactDistant)) {
 				// Can interact..
-				IPlayer->InteractPoint = Hit.Location;
+				IPlayer->HitVector = Hit.Location;
 				IPlayer->InteractTarget = Target;
 				//IPlayer->bStopNow = false;
 				IPlayer->LookTarget();
