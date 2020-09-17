@@ -8,17 +8,21 @@ AAutoPickup::AAutoPickup() {
 	PrimaryActorTick.bCanEverTick = false;
 
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>("PickupMesh");
-	PickupMesh->SetSimulatePhysics(true);
 	PickupMesh->SetCollisionProfileName(TEXT("PickupActor"));
+	PickupMesh->SetSimulatePhysics(true);
 	RootComponent = Cast<USceneComponent>(PickupMesh);
 
 	Rotation = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("Rotation"));
-	
 	ItemID = FName("None");
 }
 
 void AAutoPickup::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+}
+
+void AAutoPickup::BeginPlay() {
+	Super::BeginPlay();
+	PickupMesh->SetEnableGravity(false);
 }
 
 void AAutoPickup::Collect(ACharacter* Player) {
@@ -30,7 +34,9 @@ void AAutoPickup::Collect(ACharacter* Player) {
 	FVector _newLocation	= GetActorLocation() + (_direction * _speed);
 
 	bIsCollected = true;
-	PickupMesh->SetEnableGravity(false);
 	_playerLocation.Z += 55.f;
 	SetActorLocation(_newLocation);
+}
+
+void AAutoPickup::SetItemProperty(int code) {
 }

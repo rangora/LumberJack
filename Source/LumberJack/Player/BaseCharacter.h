@@ -14,10 +14,14 @@ class LUMBERJACK_API ABaseCharacter : public ACharacter
 
 public:
 	ABaseCharacter();
+	virtual void SetupPlayerInputComponent(UInputComponent* Input) override;
 
-	// For mouse input.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		UDecalComponent* CursorToWorld;
+	void MoveForward(float delta);
+	void MoveRight(float delta);
+
+	//// For mouse input.
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	//	UDecalComponent* CursorToWorld;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

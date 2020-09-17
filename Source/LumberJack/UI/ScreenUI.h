@@ -13,6 +13,8 @@
 /**
  * 
  */
+
+
 UCLASS()
 class LUMBERJACK_API UScreenUI : public UBaseUI {
 	GENERATED_BODY()
@@ -21,15 +23,22 @@ public:
 	UScreenUI(const FObjectInitializer& ObjectInitializer);
 	virtual void NativeConstruct() override;
 	
+	void InteractionEnable(bool enable, AActor* Interactable);
 
 	UFUNCTION(BlueprintCallable)
 		void BagTouchEvent();
+	UFUNCTION(BlueprintCallable)
+		void DoInteraction();
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		UButton* BagButton;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		UButton* InteractButton;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 		UInventoryUI* InventoryWidget;
 
 	bool bInventoryOpen = false;
+	bool bInteract = false;
 };

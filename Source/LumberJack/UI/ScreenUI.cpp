@@ -2,20 +2,24 @@
 
 
 #include "ScreenUI.h"
-
+#include "../Player/PlayerCharacter.h"
+#include "../Actors/Interactable.h"
 
 UScreenUI::UScreenUI(const FObjectInitializer& ObjectInitializer) 
 	: Super(ObjectInitializer) {
 }
 
-
 void UScreenUI::NativeConstruct() {
 	Super::NativeConstruct();
 }
 
-void UScreenUI::BagTouchEvent() {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("BagTouchEvent")));
+void UScreenUI::InteractionEnable(bool enable, AActor* Interactable) {
+	bInteract = enable;
+	if (enable)	InteractButton->SetRenderOpacity(1.0f);
+	else InteractButton->SetRenderOpacity(0.5f);
+}
 
+void UScreenUI::BagTouchEvent() {
 	if (InventoryWidget != nullptr) {
 		if (!bInventoryOpen) {
 			InventoryWidget->AddToViewport();
@@ -25,5 +29,14 @@ void UScreenUI::BagTouchEvent() {
 			InventoryWidget->RemoveFromParent();
 			bInventoryOpen = false;
 		}
+	}
+}
+
+void UScreenUI::DoInteraction() {
+	auto Target = IPlayer->InteractTarget;
+	if (bInteract && IsValid(Target)) {
+		auto Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+		IPlayer->LookTarget();
+		IPlayer->InteractTarget->Interact(Player);
 	}
 }

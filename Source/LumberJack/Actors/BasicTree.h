@@ -20,11 +20,22 @@ public:
 
 	void CuttingDown();
 	void DestroyBody();
+	void DropItem();
 
 	float health = 100.f;
 	bool bDestructed = false;
+	bool bDoRotation = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float force = 1000000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float offsetZ = 65.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int itemCode = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* Stump;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* Body;
 
 	class UParticleSystemComponent* ParticleComponent;

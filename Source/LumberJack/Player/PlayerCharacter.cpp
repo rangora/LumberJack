@@ -18,8 +18,11 @@ APlayerCharacter::APlayerCharacter() {
 
 	// Collection.
 	CollectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollectionSphere"));
+	InteractionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("InteractionSphere"));
 	CollectionSphere->SetupAttachment(RootComponent);
+	InteractionSphere->SetupAttachment(RootComponent);
 	CollectionSphere->SetSphereRadius(300.f);
+	InteractionSphere->SetSphereRadius(interactionRadius);
 
 	// Coliision.
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::PickupItem);
@@ -40,37 +43,15 @@ APlayerCharacter::APlayerCharacter() {
 void APlayerCharacter::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
 
-	if (CursorToWorld != nullptr) {
-		if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled()) {
-			if (UWorld* World = GetWorld()) {
-				FHitResult HitResult;
-				FCollisionQueryParams Params(NAME_None, FCollisionQueryParams::GetUnknownStatId());
-				FVector StartLocation = CameraComponent->GetComponentLocation();
-				FVector EndLocation = CameraComponent->GetComponentRotation().Vector() * 2000.0f;
-				Params.AddIgnoredActor(this);
-				World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
-				FQuat SurfaceRotation = HitResult.ImpactNormal.ToOrientationRotator().Quaternion();
-				CursorToWorld->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
-			}
-		}
-		else if (APlayerController* PC = Cast<APlayerController>(GetController())) {
-			FHitResult TraceHitResult;
-			PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
-			FVector CursorFV = TraceHitResult.ImpactNormal;
-			FRotator CursorR = CursorFV.Rotation();
-			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
-			CursorToWorld->SetWorldRotation(CursorR);
-		}
-	}
-
 	if (bNeedRotation) {
 		FRotator Ro{ this->GetActorRotation().Pitch, TargetRotation.Yaw, this->GetActorRotation().Roll };
-		auto NewRotation = FMath::RInterpTo(this->GetActorRotation(), TargetRotation, DeltaSeconds, 0.2f);
+		auto NewRotation = FMath::RInterpTo(this->GetActorRotation(), Ro, DeltaSeconds, 0.4f);
 		SetActorRotation(Ro);
 		bNeedRotation = false;
 	}
 
 	CollectAutoPickup();
+	CollectInteractable();
 }
 
 void APlayerCharacter::PostInitializeComponents() {
@@ -120,6 +101,29 @@ void APlayerCharacter::CollectAutoPickup() {
 	}
 }
 
+void APlayerCharacter::CollectInteractable() {
+	TArray<AActor*> CollectedActors;
+	bool isInteract = false;
+	auto IGameMode = Cast<AMainGameMode>(GetWorld()->GetAuthGameMode());
+
+	InteractionSphere->GetOverlappingActors(CollectedActors);
+	for (auto actor : CollectedActors) {
+		AInteractable* inActor = Cast<AInteractable>(actor);
+
+		if (inActor && !inActor->IsPendingKill() && inActor->bInteractable) {
+			isInteract = true;
+			IGameMode->MainScreenWidget->InteractionEnable(true, inActor);
+			InteractTarget = inActor;
+			break;
+		}
+	}
+
+	if (!isInteract) {
+		IGameMode->MainScreenWidget->InteractionEnable(false, nullptr);
+		InteractTarget = nullptr;
+	}
+}
+
 void APlayerCharacter::ChopTheTree() {
 	auto Tree = Cast<ABasicTree>(InteractTarget);
 
@@ -146,24 +150,28 @@ void APlayerCharacter::ChopTheTree() {
 				_treeVector,
 				ECollisionChannel::ECC_Visibility);
 			
+			FVector _endVector;
 			if (bResult) {
 				if (HitResult.Actor.IsValid()) {
 					FVector _hitVector = HitResult.Location;
-					_hitVector.Z += 350.f;
+					_hitVector.Z += Tree->offsetZ;
 
 					FVector _treePush = FVector(_treeVector.X, _treeVector.Y, _hitVector.Z);
-					FVector _endVector = (_treePush - _hitVector) * 10.f + _hitVector;
-					Tree->Body->AddForceAtLocation(_endVector * 50000.f, _treePush);
+					_endVector = (_treePush - _hitVector) * Tree->force + _hitVector;
+					Tree->Body->AddForceAtLocation(_endVector, _hitVector);
 					
-					// Debug.					
-					/*DrawDebugLine(GetWorld(), _hitVector, _endVector, FColor::Red, true);
-					DrawDebugSphere(GetWorld(),
-						_hitVector, 8.f, 12, FColor::Green, true);
-					DrawDebugSphere(GetWorld(),
-						_endVector, 8.f, 12, FColor::White, true);
-					*///
+					//// Debug.					
+					//DrawDebugLine(GetWorld(), _hitVector, _endVector, FColor::Red, true);
+					//DrawDebugSphere(GetWorld(),
+					//	_hitVector, 8.f, 12, FColor::Green, true);
+					//DrawDebugSphere(GetWorld(),
+					//	_endVector, 8.f, 12, FColor::White, true);
 				}
+			
 			}
+	/*		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(
+				TEXT("_endVector:%s"), *_endVector.ToString()));*/
+			
 			Tree->CuttingDown();
 			Anim->StopAnimation();
 			bInteracting = false;

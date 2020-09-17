@@ -14,7 +14,10 @@ class LUMBERJACK_API AAutoPickup : public AActor {
 public:	
 	AAutoPickup();
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginPlay() override;
 	virtual void Collect(ACharacter* Player);
+
+	void SetItemProperty(int code);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UStaticMeshComponent* PickupMesh;

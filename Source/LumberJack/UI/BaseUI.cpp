@@ -3,7 +3,6 @@
 
 #include "BaseUI.h"
 #include "LumberJack/Player/PlayerCharacter.h"
-#include "LumberJack/Player/PlayerCharacter.h"
 #include "LumberJack/LumberJackPlayerController.h"
 
 UBaseUI::UBaseUI(const FObjectInitializer& ObjectIntializer) 

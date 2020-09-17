@@ -5,7 +5,7 @@
 
 
 AInteractable::AInteractable() {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	bInteractable = true;
 	Name = "Interactable";
 	Action = "interact";

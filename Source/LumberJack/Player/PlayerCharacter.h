@@ -25,12 +25,14 @@ public:
 
 	void LookTarget();
 	void CollectAutoPickup();
+	void CollectInteractable();
 
 	UFUNCTION() // Delegate.
 		void ChopTheTree();
 
 public:
 	float chopDamage;
+	float interactionRadius = 100.f;
 	bool bInteracting = false;
 
 	FVector HitVector;
@@ -49,4 +51,5 @@ private:
 
 	FRotator TargetRotation;
 	USphereComponent* CollectionSphere;
+	USphereComponent* InteractionSphere;
 };

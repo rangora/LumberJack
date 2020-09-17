@@ -4,7 +4,7 @@
 #include "BaseCharacter.h"
 #include "Engine.h"
 
-// Sets default values
+
 ABaseCharacter::ABaseCharacter() {
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 150.0f);
@@ -25,7 +25,7 @@ ABaseCharacter::ABaseCharacter() {
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
 	CameraBoom->TargetArmLength = 800.f;
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
+	CameraBoom->SetRelativeRotation(FRotator(-45.f, -40.f, 0.f));
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
 
 	// Create a camera...
@@ -34,17 +34,38 @@ ABaseCharacter::ABaseCharacter() {
 	CameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Create a decal in the world to show the cursor's location
-	CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
-	CursorToWorld->SetupAttachment(RootComponent);
-	static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterialAsset(TEXT("Material'/Game/TopDownCPP/Blueprints/M_Cursor_Decal.M_Cursor_Decal'"));
-	if (DecalMaterialAsset.Succeeded())
-	{
-		CursorToWorld->SetDecalMaterial(DecalMaterialAsset.Object);
-	}
-	CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
-	CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
+	//CursorToWorld = CreateDefaultSubobject<UDecalComponent>("CursorToWorld");
+	//CursorToWorld->SetupAttachment(RootComponent);
+	//static ConstructorHelpers::FObjectFinder<UMaterial> DecalMaterialAsset(TEXT("Material'/Game/TopDownCPP/Blueprints/M_Cursor_Decal.M_Cursor_Decal'"));
+	//if (DecalMaterialAsset.Succeeded())
+	//{
+	//	CursorToWorld->SetDecalMaterial(DecalMaterialAsset.Object);
+	//}
+	//CursorToWorld->DecalSize = FVector(16.0f, 32.0f, 32.0f);
+	//CursorToWorld->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f).Quaternion());
 
 	// Scale and Rotation.
 	GetMesh()->SetRelativeScale3D(FVector(0.35f, 0.35f, 0.35f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, 180.f, 0.f));
+}
+
+void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* Input) {
+	Input->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
+	Input->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
+}
+
+void ABaseCharacter::MoveForward(float delta) {
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation = FRotator(0, Rotation.Yaw, 0);
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+	AddMovementInput(Direction, delta);
+}
+
+void ABaseCharacter::MoveRight(float delta) {
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+	AddMovementInput(Direction, delta);
 }

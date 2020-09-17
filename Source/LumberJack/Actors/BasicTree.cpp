@@ -3,12 +3,13 @@
 
 #include "BasicTree.h"
 #include "Engine.h"
-#include "Wood.h"
+#include "AutoPickup/AutoPickup.h"
 #include "../Player/PlayerCharacter.h"
 #include "Runtime/Engine/Classes/Engine/Engine.h"
 
 
 ABasicTree::ABasicTree() {
+	PrimaryActorTick.bCanEverTick = false;
 	Name = "BasicTree";
 	Action = "Cut";
 
@@ -38,10 +39,11 @@ ABasicTree::ABasicTree() {
 	Stump->SetCollisionProfileName("BlockAll");
 
 	Body->SetupAttachment(Stump);
-	Body->SetRelativeLocation(FVector(0.f, -2.f, 195.f));
+	SetActorTickEnabled(false);
 }
 
 void ABasicTree::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
 }
 
 void ABasicTree::BeginPlay() {
@@ -69,7 +71,20 @@ void ABasicTree::CuttingDown() {
 }
 
 void ABasicTree::DestroyBody() {
+	DropItem();
 	ParticleComponent->DestroyComponent();
 	Body->DestroyComponent();
+
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tree::Destroy")));
+}
+
+void ABasicTree::DropItem() {
+	FString BP_PickupPath = "/Game/Blueprints/Pickup/SamplePickup.SamplePickup_C";
+	UClass* BP_Pickup = Cast<UClass>(StaticLoadObject(UClass::StaticClass(), NULL, *BP_PickupPath));
+
+	auto Socket = Body->GetSocketByName(TEXT("DropSocket"));
+	if (IsValid(Socket)) {
+		auto Item = GetWorld()->SpawnActor<AAutoPickup>(BP_Pickup, Body->GetSocketLocation(TEXT("DropSocket")), FRotator::ZeroRotator);
+		Item->SetItemProperty(1);
+	}
 }
