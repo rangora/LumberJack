@@ -7,7 +7,12 @@ Binaries
 Build
 Intermediate
 Saved
-Plugins
+Plugins/Binaries
+Plugins/Content
+Plugins/Intermediate
+
+## asio Path: Plugins/Source/ThirdParty/asio/include
+Plugins/Source/ThirdParty/asio
 
 ## asset
 Content
