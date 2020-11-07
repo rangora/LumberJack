@@ -10,13 +10,22 @@
 /**
  * 
  */
+
+class UNetClient;
+
 UCLASS()
 class LUMBERJACK_API AMainGameState : public AGameStateBase {
 	GENERATED_BODY()
 	
 public:
 	AMainGameState();
+	void PostInitializeComponents() override;
 
 	UPROPERTY(EditDefaultsOnly)
 		UDataTable* BaseItemDB;
+
+	UNetClient* Client = nullptr;
+
+private:
+	int32_t uid;
 };

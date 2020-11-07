@@ -13,20 +13,17 @@ ABasicTree::ABasicTree() {
 	Name = "BasicTree";
 	Action = "Cut";
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> StumpMesh(
-		TEXT("/Game/Maps/ST_Stump.ST_Stump"));
-	ConstructorHelpers::FObjectFinder<UStaticMesh> BodyMesh(
-		TEXT("/Game/Maps/ST_Body.ST_Body"));
 	ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleMesh(
 		TEXT("/Game/A_External/Particles_Wind_Control_System/Particles/P_Fireflies.P_Fireflies"));
 
+	Leaf = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeafMesh"));
 	Stump = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StumpMesh"));
 	Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
 	ParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleMesh"));
 
 	RootComponent = Stump;
-	Stump->SetStaticMesh(StumpMesh.Object);
-	Body->SetStaticMesh(BodyMesh.Object);
+	Body->SetupAttachment(RootComponent);
+	Leaf->SetupAttachment(Body);
 
 	if (ParticleMesh.Succeeded()) {
 		ParticleComponent->SetTemplate(ParticleMesh.Object);
@@ -34,16 +31,12 @@ ABasicTree::ABasicTree() {
 		ParticleComponent->SetupAttachment(Body);
 		ParticleComponent->SetWorldScale3D(FVector(0.3f, 0.3f, 0.3f));
 	}
-	
+	Leaf->SetCollisionProfileName("NoCollision");
 	Body->SetCollisionProfileName("BlockAll");
 	Stump->SetCollisionProfileName("BlockAll");
 
-	Body->SetupAttachment(Stump);
-	SetActorTickEnabled(false);
-}
 
-void ABasicTree::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
+	SetActorTickEnabled(false);
 }
 
 void ABasicTree::BeginPlay() {
@@ -74,6 +67,7 @@ void ABasicTree::DestroyBody() {
 	DropItem();
 	ParticleComponent->DestroyComponent();
 	Body->DestroyComponent();
+	Leaf->DestroyComponent();
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Tree::Destroy")));
 }

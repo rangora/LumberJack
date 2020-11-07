@@ -19,6 +19,7 @@ class LUMBERJACK_API AMainGameMode : public AGameModeBase {
 	
 public:
 	AMainGameMode();
+	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 	void ChangeScreenWidget(TSubclassOf<UUserWidget> NewWidgetClass);

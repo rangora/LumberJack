@@ -19,8 +19,10 @@ public:
 	UInventorySlot(const FObjectInitializer& ObjectInitializer);
 	void NativeConstruct() override;
 
-	void SetThisItem(FName ID);
+	void SetThisItem(FName ID, int32 _Count = 1);
+	void SyncItemDB(int32 _Idx);
 
+	// Item data..
 	UPROPERTY(VisibleAnywhere)
 		FName ItemID;
 	UPROPERTY(VisibleAnywhere)
@@ -33,7 +35,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bEmpty = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 count;
+		int32 Count;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* ItemCount;
 	

@@ -18,6 +18,18 @@ ALumberJackPlayerController::ALumberJackPlayerController() {
 
 void ALumberJackPlayerController::PlayerTick(float DeltaTime) {
 	Super::PlayerTick(DeltaTime);
+
+	APlayerCharacter* IPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	FVector2D Location2D{ IPlayer->GetActorLocation().X, IPlayer->GetActorLocation().Y };
+	//PlayerFow->RevealSmoothCircle(Location2D, 1000);
+	PlayerPlane->SetActorLocation(FVector(0.f, 0.f, IPlayer->GetActorLocation().Z));
+	PlayerPlane->RevealSmoothCircle(Location2D, 600);
+
+	//Location2D.ToString();
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(
+	//	TEXT("2D:%s"), *Location2D.ToString()));
+
+
 }
 
 void ALumberJackPlayerController::SetupInputComponent() {
@@ -39,6 +51,9 @@ void ALumberJackPlayerController::SetupInputComponent() {
 
 void ALumberJackPlayerController::BeginPlay() {
 	Super::BeginPlay();
+	
+	//PlayerFow = GetWorld()->SpawnActor<AFow>(AFow::StaticClass());
+	PlayerPlane = GetWorld()->SpawnActor<ASimplePlane>(ASimplePlane::StaticClass());
 	
 	FString TouchInterfacePath = "/Game/UI/MainTouchInterface.MainTouchInterface";
 	UTouchInterface* MainTouchInterface = Cast<UTouchInterface>(StaticLoadObject(UTouchInterface::StaticClass(), NULL, *TouchInterfacePath));

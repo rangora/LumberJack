@@ -23,6 +23,8 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
+	void ItemInit();
+
 	void LookTarget();
 	void CollectAutoPickup();
 	void CollectInteractable();

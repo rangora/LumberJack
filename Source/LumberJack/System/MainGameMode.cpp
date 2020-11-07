@@ -3,6 +3,7 @@
 
 #include "MainGameMode.h"
 #include "MainGameState.h"
+#include "MainGameInstance.h"
 #include "../LumberJackPlayerController.h"
 #include "../Player/PlayerCharacter.h"
 #include "UObject/ConstructorHelpers.h"
@@ -33,6 +34,10 @@ AMainGameMode::AMainGameMode() {
 		SlotWidgetClass = SlotWidgetClass_C.Class;
 }
 
+void AMainGameMode::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+}
+
 void AMainGameMode::BeginPlay() {
 	Super::BeginPlay();
 
@@ -54,6 +59,8 @@ void AMainGameMode::BeginPlay() {
 	if (SlotWidget != nullptr) {
 		MainScreenWidget->InventoryWidget->BaseSlot = SlotWidget;
 	}
+
+	InventoryWidget->InitItemData();
 }
 
 void AMainGameMode::ChangeScreenWidget(TSubclassOf<UUserWidget> NewWidgetClass) {

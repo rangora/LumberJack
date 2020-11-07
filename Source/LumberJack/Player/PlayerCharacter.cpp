@@ -3,7 +3,10 @@
 
 #include "PlayerCharacter.h"
 #include "Engine.h"
+#include "../System/MainGameInstance.h"
 #include "../System/MainGameMode.h"
+#include "../System/MainGameState.h"
+#include "../System/NetClient.h"
 #include "../LumberJackPlayerController.h"
 #include "../Actors/BasicTree.h"
 #include "../Actors/AutoPickup/AutoPickup.h"
@@ -52,6 +55,20 @@ void APlayerCharacter::Tick(float DeltaSeconds) {
 
 	CollectAutoPickup();
 	CollectInteractable();
+
+	//GetActorForwardVector();
+	float radius = 600.f;
+	for (int i = 1; i <= 24; i++) {
+		float _y = FMath::Sin(float(i) * 15.f) * radius;
+		float _x = FMath::Cos(float(i) * 15.f) * radius;
+
+		FVector Ray = { GetActorLocation().X + _x,
+						GetActorLocation().Y + _y,
+						GetActorLocation().Z};
+		//DrawDebugLine(GetWorld(), GetActorLocation(), Ray, FColor::Red);
+
+	}
+	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorForwardVector(), FColor::Red);
 }
 
 void APlayerCharacter::PostInitializeComponents() {
@@ -82,6 +99,38 @@ void APlayerCharacter::BeginPlay() {
 	else {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("NO_DoesSocketExist")));
 	}
+
+	ItemInit();
+}
+
+void APlayerCharacter::ItemInit() {
+	auto IInstance = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	auto IState = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
+
+	if (IState->Client->syncPlayerItem()) {
+		FPlatformProcess::Sleep(1.f);
+		FString m_data = IState->Client->retrieveMessage();
+
+		if (!m_data.IsEmpty()) {
+			int i{};
+			for (i = 0; i < 4; i++) {
+				if (m_data[i] != '0') break;
+			}
+			auto itemcode = m_data.Mid(i, 4-i);
+			auto itemcount = m_data.Mid(4, 4);
+			
+			FName ItemCode = FName(*itemcode);
+			int32_t ItemCount = FCString::Atoi(*itemcount);
+			IInstance->AddItem(ItemCode, ItemCount);
+
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, 
+				FString::Printf(TEXT("itemcode: %s"), *itemcode));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+				FString::Printf(TEXT("itemcount: %s"), *itemcount));
+		}
+	}
+
+
 }
 
 void APlayerCharacter::LookTarget() {
@@ -132,7 +181,7 @@ void APlayerCharacter::ChopTheTree() {
 
 		if (Tree->health <= 0.f) {
 			Tree->Body->SetSimulatePhysics(true);
-
+			Tree->Leaf->SetSimulatePhysics(true);
 			auto _socket = Weapon->GetSocketByName(TEXT("AxeHit"));
 			auto _AxeVector = GetMesh()->GetSocketLocation(TEXT("LH_Socket")) + _socket->RelativeLocation;
 			auto _treeVector = FVector(Tree->GetActorLocation().X , Tree->GetActorLocation().Y, _AxeVector.Z);

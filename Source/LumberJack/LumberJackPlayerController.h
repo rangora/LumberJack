@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Fow/Fow.h"
+#include "SimplePlane.h"
 #include "LumberJackPlayerController.generated.h"
 
 UCLASS()
@@ -16,6 +18,12 @@ public:
 	virtual void PlayerTick(float DeltaTime) override;
 	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+		AFow* PlayerFow;
+
+	UPROPERTY()
+		ASimplePlane* PlayerPlane;
 };
 
 

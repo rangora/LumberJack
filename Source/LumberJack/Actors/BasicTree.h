@@ -14,7 +14,6 @@ class LUMBERJACK_API ABasicTree : public AInteractable {
 	
 public:	
 	ABasicTree();
-	virtual void Tick(float DeltaTime) override;
 	virtual void BeginPlay() override;
 	virtual void Interact(ACharacter* ACharacter);
 
@@ -22,17 +21,22 @@ public:
 	void DestroyBody();
 	void DropItem();
 
-	float health = 100.f;
 	bool bDestructed = false;
 	bool bDoRotation = false;
 
+	// Variables.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float health = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float force = 1000000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float offsetZ = 65.f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int itemCode = -1;
+	
+	// Meshes.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* Leaf;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* Stump;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -21,16 +21,18 @@ public:
 	UInventoryUI(const FObjectInitializer& ObjectInitializer);
 	void NativeConstruct() override;
 
-	bool AddItem(FName ItemID);
-	void AddNewItem();
+	void InitItemData();
+	
+	bool AddItem(FName ItemID, int32 Count = 1);
+	void RefreshSlots();
 	void RefreshPanel();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-		UGridPanel* Panel = nullptr;
+	UGridPanel* Panel = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	 UInventorySlot* BaseSlot;
 
-	TArray<UInventorySlot*> ItemArray;
+	TArray<UInventorySlot*> ItemSlots;
 
 private:
 	enum {
