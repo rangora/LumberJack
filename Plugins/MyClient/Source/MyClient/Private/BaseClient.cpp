@@ -66,11 +66,19 @@ bool UBaseClient::syncPlayerItem() {
 	net::Message<MessageType> msg;
 	msg.Header.id = MessageType::ITEM;
 
-	const char* c_str = "3";
+	const char* c_str = "10003";
 	msg.gets(c_str, std::strlen(c_str));
 	send(msg);
 
 	return true;
+}
+
+void UBaseClient::passItemInfo(int32_t itemcode, int32_t count) {
+	net::Message<MessageType> msg;
+	msg.Header.id = MessageType::ITEM;
+
+	const char c_str[20]{};
+
 }
 
 FString UBaseClient::retrieveMessage() {

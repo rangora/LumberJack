@@ -35,7 +35,7 @@ bool UInventoryUI::AddItem(FName ItemID, int32 Count) {
 	if (idx < 0) {
 		// Get in when new item..
 		auto NewSlot = NewObject<UInventorySlot>(BaseSlot, BaseSlot->GetClass());
-		NewSlot->SetThisItem(ItemID);
+		NewSlot->SetThisItem(ItemID, Count);
 		ItemSlots.Add(NewSlot);
 	}
 	else {

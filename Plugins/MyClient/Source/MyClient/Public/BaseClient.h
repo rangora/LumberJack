@@ -26,9 +26,13 @@ public:
 	 bool isConnected();
 	 void send(const net::Message<MessageType>& msg);
 
+	 // login.
 	 bool ack();
 	 bool login(int32_t uid);
+
+	 // item.
 	 bool syncPlayerItem();
+	 void passItemInfo(int32_t itemcode, int32_t count = 1);
 
 	 FString retrieveMessage();
 

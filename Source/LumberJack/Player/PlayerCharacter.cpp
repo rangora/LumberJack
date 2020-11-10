@@ -112,21 +112,31 @@ void APlayerCharacter::ItemInit() {
 		FString m_data = IState->Client->retrieveMessage();
 
 		if (!m_data.IsEmpty()) {
-			int i{};
-			for (i = 0; i < 4; i++) {
-				if (m_data[i] != '0') break;
-			}
-			auto itemcode = m_data.Mid(i, 4-i);
-			auto itemcount = m_data.Mid(4, 4);
-			
-			FName ItemCode = FName(*itemcode);
-			int32_t ItemCount = FCString::Atoi(*itemcount);
-			IInstance->AddItem(ItemCode, ItemCount);
+			int num = FCString::Atoi(*m_data.Mid(0, 3));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+			//	FString::Printf(TEXT("num: %d"), num));
 
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, 
-				FString::Printf(TEXT("itemcode: %s"), *itemcode));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
-				FString::Printf(TEXT("itemcount: %s"), *itemcount));
+			for (int i = 0; i < num; i++) {
+				int pivot = 3 + (8 * i);
+				int j = pivot;
+				int k = pivot + 4;
+				while (m_data[j] == '0') j++;
+				while (m_data[k] == '0') k++;
+
+				auto itemcode = m_data.Mid(j, (7+i*7) - j);
+				auto itemcount = m_data.Mid(k, (11+i*11) - k); //k=8
+
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+				//	FString::Printf(TEXT("size: %d"), m_data.Len()));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, 
+				//	FString::Printf(TEXT("itemcode: %s"), *itemcode));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+				//	FString::Printf(TEXT("itemcount: %s"), *itemcount));
+				
+				FName _itemCode = FName(*itemcode);
+				int32_t _itemCount = FCString::Atoi(*itemcount);
+				Inventory->AddItem(_itemCode, _itemCount);
+			}
 		}
 	}
 
