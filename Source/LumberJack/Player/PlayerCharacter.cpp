@@ -240,8 +240,10 @@ void APlayerCharacter::ChopTheTree() {
 
 void APlayerCharacter::PickupItem(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 	AAutoPickup* Item = Cast<AAutoPickup>(OtherActor);
+	auto IIstate = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
 
 	if (IsValid(Item)) {
+		IIstate->Client->passItemInfo(Item->ItemID);
 		if (Inventory->AddItem(Item->ItemID))
 			Item->Destroy();
 	}

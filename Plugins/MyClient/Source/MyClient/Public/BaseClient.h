@@ -32,11 +32,13 @@ public:
 
 	 // item.
 	 bool syncPlayerItem();
-	 void passItemInfo(int32_t itemcode, int32_t count = 1);
+	 void passItemInfo(FName itemcode, int32_t count = 1);
 
 	 FString retrieveMessage();
 
 	 net::Squeue<net::Owned_message<MessageType>>& incoming();
+
+	 char* uid = nullptr;
 
 protected:
 	asio::io_context m_context;
@@ -45,4 +47,6 @@ protected:
 
 private:
 	net::Squeue<net::Owned_message<MessageType>> m_qMessagesIn;
+
+	
 };
