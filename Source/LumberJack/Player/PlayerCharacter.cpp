@@ -100,6 +100,27 @@ void APlayerCharacter::BeginPlay() {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("NO_DoesSocketExist")));
 	}
 
+	// TEMP for multi users..
+	auto IState = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	IState->Client = NewObject<UNetClient>();
+	IState->uid = p_uid;
+	IState->Client->connect("127.0.0.1", 999);
+	IState->Client->login(p_uid);
+	FPlatformProcess::Sleep(1.f);
+
+	FString m_data = IState->Client->retrieveMessage();
+
+	if (!m_data.IsEmpty()) {
+		if (m_data[0] - '0' == LoginOperation::ACCEPT) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(
+				TEXT("Login Accepted!!")));
+		}
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(
+		TEXT("m_data: %s"), *m_data));
+	/*********/
+
 	ItemInit();
 }
 

@@ -43,7 +43,9 @@ public:
 
 	UPROPERTY()
 		UPlayerAnimInstance* Anim;
-	
+	UPROPERTY(Editanywhere, BlueprintReadwrite)
+		int p_uid;
+
 
 private:
 	UFUNCTION()

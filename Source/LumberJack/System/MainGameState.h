@@ -26,6 +26,5 @@ public:
 
 	UNetClient* Client = nullptr;
 
-private:
 	int32_t uid;
 };

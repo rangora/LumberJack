@@ -18,6 +18,7 @@ AMainGameState::AMainGameState()
 void AMainGameState::PostInitializeComponents() {
 	Super::PostInitializeComponents();
 
+	/*
 	Client = NewObject<UNetClient>();
 	if (Client != nullptr) {
 		Client->connect("127.0.0.1", 999);
@@ -35,15 +36,6 @@ void AMainGameState::PostInitializeComponents() {
 
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(
 			TEXT("m_data: %s"), *m_data));
-
-		/*Client->ack();
-		FPlatformProcess::Sleep(1.f);
-		FString m_data = Client->retrieveMessage();
-
-
-		if (!m_data.IsEmpty()) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(
-				TEXT("m_data: %s"), *m_data));
-		}*/
 	}
+	*/
 }
