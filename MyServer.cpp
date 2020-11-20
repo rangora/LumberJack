@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <Net_Core.h>
 #include <Net_Server.h>
 #include <mysql.h>
@@ -11,7 +12,6 @@
 #define _WIN32_WINNT 0x0A00
 #endif
 
-// add on ue4..
 
 class MyServer : public net::Server_interface {
 public:
@@ -22,20 +22,11 @@ public:
 			"lumberjack", 0, NULL, 0) != NULL) {
 			std::cout << "[DB]: Connected." << std::endl;
 		}
-
-		// TEST
-		//const char out[80]{};
-		//std::string tstr = "1000";
-		//retrieveItemData(out,tstr);
-		//std::cout << "out: " << out << std::endl;
 	}
 	~MyServer() {}
 
 protected:
 	virtual bool onClientConnect(std::shared_ptr<net::Connection<MessageType>> client) {
-		//net::Message<MessageType> msg;
-		//msg.Header.id = MessageType::ACK;
-		//client->send(msg);
 		return true;
 	}
 
@@ -45,50 +36,53 @@ protected:
 
 	int retrieveItemData(const char* out, std::string& uid) {
 		std::cout << "\n";
-		int size{};
-		uid.append("\0");
-		char t_data[80]{};
-		const char query[100]{};
-		const char* prefix = "SELECT item.* FROM user u, stacked_belonging item\
-								WHERE item.uid = ";
-		
-		std::memset(t_data, '0', 80);
-		std::memcpy((char*)query, prefix, std::strlen(prefix));
-		std::memcpy((char*)query + std::strlen(prefix), uid.c_str(), uid.length());
 
+		int size{};
+		const char query[100]{};
+		std::vector<size_t> poses;
+		std::string raw = "SELECT * FROM inventory_[U_ID] WHERE inventory_[U_ID].uid = [U_ID]";
+		
+		size_t pos = raw.find("[U_ID]");
+		while (pos != std::string::npos) {
+			poses.emplace_back(pos);
+			raw.replace(pos, 6, uid);
+			pos = raw.find("[U_ID]", pos + 6);
+		}
+
+		std::memcpy((char*)query, raw.c_str(), raw.length());
+		
 		if (mysql_query(DBconn, query)) {
 			std::cout << "[QueryError]: query" << std::endl;
 			return -1;
 		}
 
 		MYSQL_RES* result = mysql_store_result(DBconn);
-		if (result == NULL) {
-			std::cout << "[QueryError]: unvalid result" << std::endl;
-			return -1;
-		}
-
-		int num_fields = mysql_num_fields(result);
 		MYSQL_ROW row;
-
-		int pivot{0};
+		int num_fields = mysql_num_fields(result);
+		
+		std::string val(3,'0');
+		val.reserve(80);
+		
+		int cnt{};
 		while ((row = mysql_fetch_row(result))) {
 			size++;
-			for (int i = 0; i < num_fields-1; i++) {
+			for (int i = 0; i < num_fields - 1; i++) {
 				const char* ele = row[i] ? row[i] : "NULL";
+				cnt = std::strlen(ele);
 
-				for (int i = std::strlen(ele)-1; i >= 0; i--) {
-					t_data[pivot * 4 + 3 - i] = ele[i];
-					t_data[pivot + 4 + 4 - i] = '\0';
+				for (int j = 0; j < 4 - cnt; j++) {
+					val.push_back('0');
 				}
-				pivot++;
+
+				for (int j = 0; j < std::strlen(ele); j++) {
+					val.push_back(ele[j]);
+				}
 			}
 		}
+		std::string num = std::to_string(size);
+		val.replace(3 - num.length(), num.length(), num);
 
-		std::string s_size = std::to_string(size);
-		while (s_size.length() != 3) 
-			s_size = "0" + s_size;
-		std::memcpy((char*)out, s_size.c_str(), s_size.length());
-		std::memcpy((char*)out + 3, t_data, std::strlen(t_data));
+		std::memcpy((char*)out, val.c_str(), val.length());
 		std::cout << "\n";
 
 		return size;
@@ -205,7 +199,7 @@ protected:
 			}
 			case ItemOperation::ITEMIN:
 			{
-				std::cout << "Process type: ITEM_IN" << std::endl;
+				std::cout << "Process type: ITEM_IN\n";
 				std::cout << "item_code: " << m_data.substr(5, 4) << std::endl;
 				std::cout << "item_count: " << m_data.substr(9, 4) << std::endl;
 				
@@ -224,7 +218,7 @@ protected:
 				const char reply[80]{};
 				retrieveItemData(reply, m_uid);
 
-				std::cout << "[SERVER] item data :" << std::endl;
+				std::cout << "[SERVER] item data :";
 				std::cout << reply << std::endl;
 
 				msg.gets(reply, std::strlen(reply));
@@ -326,36 +320,6 @@ protected:
 		switch (msg.Header.id) {
 		case MessageType::ACK: {
 			std::cout << "[SERVER]: ACK\n";
-			
-
-			//while ((row = mysql_fetch_row(result))) {
-			//	for (int i = 0; i < num_fields; i++) {
-			//		auto ele = row[i] ? row[i] : "NULL";
-			//		if (i == 0) {
-			//			while (field = mysql_fetch_field(result)) {
-			//				std::cout << field->name << std::endl;
-			//			}
-			//		}
-			//		std::cout << ele << " ";
-			//	}
-			//	std::cout << "\n";
-			//}
-
-
-			//std::cout << msg.Body.size() << std::endl;
-			//while (!msg.Body.empty()) {
-			//	uint8_t m_data = msg.Body.back();
-			//	//std::cout << m_data<<std::endl;
-			//	std::cout << char(m_data);
-			//	msg.Body.pop_back();
-			//}
-			//std::cout << "\n";
-			//
-			//const char* cstr = "Hello from server";
-			//net::Message<MessageType> msg;
-			//msg.getCharString(cstr, std::strlen(cstr));
-			//client->send(msg);
-
 
 			break;
 		}
