@@ -90,9 +90,9 @@ protected:
 
 	bool isInventoryTableExist(const std::string& Player_uid) {
 		const char* query[100]{};
-		std::string raw = "SHOW TABLES LIKE 'T_NAME'";
+		std::string raw = "SHOW TABLES LIKE 'inventory_[U_ID]'";
 		
-		auto iter = raw.find("T_NAME");
+		auto iter = raw.find("[U_ID]");
 		raw.replace(iter, 6, Player_uid);
 		std::memcpy(query, raw.c_str(), raw.length());
 
@@ -108,8 +108,9 @@ protected:
 			return false;
 		}
 
-		if (row = mysql_fetch_row(result))
+		if (row = mysql_fetch_row(result)) {
 			return true;
+		}
 		return false;
 	}
 
@@ -136,48 +137,75 @@ protected:
 		std::cout << "\n";
 		if (m_data.length() != 13) return false;
 
-		const char query[100]{};
-		std::string raw = "UPDATE stacked_belonging SET count = count + 1 "
-							"WHERE uid= AND item_code=";
-		const char* target = "uid=";
-		// 66, 81
 		std::string t_uid = m_data.substr(0, 4);
 		std::string t_code = m_data.substr(5, 4);
 		std::string t_count = m_data.substr(9, 4);
 
-		const char* m_uid = t_uid.c_str();
-		const char* m_code = t_code.c_str();
-		const char* m_count = t_count.c_str();
+		const char query[100]{};
+		std::vector<size_t> poses;
 
-		char c_uid[10]{'\''};
-		char c_code[10]{'\''};
-		char c_count[10]{};
-		std::memcpy((char*)c_uid + 1, m_uid, std::strlen(m_uid));
-		std::memcpy((char*)c_code + 1, m_code, std::strlen(m_code));
-		std::memcpy((char*)c_count, m_count, std::strlen(m_count));
-		c_uid[std::strlen(c_uid)] = '\'\0';
-		c_code[std::strlen(c_code)] = '\'\0';
-		c_count[std::strlen(c_count)] = '\0';
+		if (!isInventoryTableExist(t_uid)) {
+			std::cout << "No player inventory table..\n";
+			std::cout << "Create new one..\n";
+			if (!createInventoryTable(t_uid)) {
+				std::cout << "Failed to create inventory table!\n";
+				return false;
+			}
+			std::cout << "Create success!!\n";
+		}
 
+		// chk item row.
+		std::string raw = "SELECT EXISTS (SELECT * FROM inventory_[U_ID] WHERE item_code=[CODE]) as SUCCESS";
+		size_t pos = raw.find("[U_ID]");
+		raw.replace(pos, 6, t_uid);
+		pos = raw.find("[CODE]");
+		raw.replace(pos, 6, t_code);
+		std::memcpy((char*)query, raw.c_str(), raw.length());
 
-		auto iter = raw.find(" AND");
-		raw.insert(iter, c_uid);
-		raw.insert(raw.length(), c_code);
-		iter = raw.find("1");
-		raw.replace(iter, 1, c_count);
+		if (mysql_query(DBconn, query)) {
+			std::cout << "Error: SELECT query.. addItemToDB()\n";
+			return false;
+		}
 
+		MYSQL_RES* result = mysql_store_result(DBconn);
+		MYSQL_ROW row;
+		char* out = nullptr;
+
+		if (row = mysql_fetch_row(result)) {
+			out = row[0];
+		}
+		// chking fin..
+		
+		// It is a new item.
+		if (out != nullptr && out[0] - '0' == 0) {
+			raw = "INSERT INTO inventory_[U_ID](item_code,count,uid) "
+				"VALUES([CODE],[COUNT],[U_ID])";
+		}
+		// Alreadt existed item.
+		else {
+			raw = "UPDATE inventory_[U_ID] SET count = count + [COUNT] "
+				"WHERE uid=[U_ID] AND item_code=[CODE]";
+		}
+
+		pos = raw.find("[U_ID]");
+		while (pos != std::string::npos) {
+			poses.emplace_back(pos);
+			raw.replace(pos, 6, t_uid);
+			pos = raw.find("[U_ID]", pos + 6);
+		}
+		
+		pos = raw.find("[COUNT]");
+		raw.replace(pos, 7, t_count);
+		pos = raw.find("[CODE]");
+		raw.replace(pos, 6, t_code);
+
+		std::memset((char*)query, 0, std::strlen(query));
 		std::memcpy((char*)query, raw.data(), raw.length());
 		std::cout <<"query: "<< query << std::endl;
 		
-		if (isInventoryTableExist(t_uid)) {
-			if (mysql_query(DBconn, query)) {
-				std::cout << "ERROR: query" << "\n";
-				return false;
-			}
-			std::cout << "Query success!\n\n";
-		}
-		else {
-
+		if (mysql_query(DBconn, query)) {
+			std::cout << "Error: UPDATE/INSERT query.. addItemToDB()\n";
+			return false;
 		}
 
 		return true;
@@ -298,19 +326,20 @@ protected:
 		if (out != nullptr && out[0] - '0' == 0) {
 			return false;
 		}
+		else {
+			raw = "UPDATE login_history SET login_time = NOW() "
+				"WHERE login_history.uid=[U_ID]";
 
-		raw = "UPDATE login_history SET login_time = NOW() "
-			"WHERE login_history.uid=[U_ID]";
+			iter = raw.find("[U_ID]");
+			raw.replace(iter, 6, m_uid);
+			std::memset((char*)query, 0, 100);
+			std::memcpy((char*)query, raw.c_str(), raw.length());
 
-		iter = raw.find("[U_ID]");
-		raw.replace(iter, 6, m_uid);
-		std::memset((char*)query, 0, 100);
-		std::memcpy((char*)query, raw.c_str(), raw.length());
-
-		// Update query.
-		if (mysql_query(DBconn, query)) {
-			std::cout << "Error: query.. update_login_history()\n";
-			return false;
+			// Update query.
+			if (mysql_query(DBconn, query)) {
+				std::cout << "Error: query.. update_login_history()\n";
+				return false;
+			}
 		}
 
 		return true;
