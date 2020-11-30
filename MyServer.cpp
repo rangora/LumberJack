@@ -87,7 +87,7 @@ protected:
 
 		return size;
 	}
-
+	
 	bool isInventoryTableExist(const std::string& Player_uid) {
 		const char* query[100]{};
 		std::string raw = "SHOW TABLES LIKE 'inventory_[U_ID]'";
@@ -144,7 +144,7 @@ protected:
 		const char query[100]{};
 		std::vector<size_t> poses;
 
-		if (!isInventoryTableExist(t_uid)) {
+		/*if (!isInventoryTableExist(t_uid)) {
 			std::cout << "No player inventory table..\n";
 			std::cout << "Create new one..\n";
 			if (!createInventoryTable(t_uid)) {
@@ -152,7 +152,7 @@ protected:
 				return false;
 			}
 			std::cout << "Create success!!\n";
-		}
+		}*/
 
 		// chk item row.
 		std::string raw = "SELECT EXISTS (SELECT * FROM inventory_[U_ID] WHERE item_code=[CODE]) as SUCCESS";
@@ -219,6 +219,10 @@ protected:
 
 		std::cout << "[SERVER]: Item transaction request from.... " << m_uid << std::endl;
 		std::cout << "Original m_data: " << m_data << std::endl;
+
+		if (!isInventoryTableExist(m_uid)) {
+			createInventoryTable(m_uid);
+		}
 
 		switch (_op) {
 			case ItemOperation::ITEMOUT: 

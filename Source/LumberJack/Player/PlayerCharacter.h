@@ -12,6 +12,9 @@
 /**
  * 
  */
+
+class UNetClient;
+
 UCLASS()
 class LUMBERJACK_API APlayerCharacter : public ABaseCharacter {
 	GENERATED_BODY()
@@ -40,6 +43,9 @@ public:
 	FVector HitVector;
 	AInteractable* InteractTarget;
 	UInventoryUI* Inventory;
+
+	// [TEMP] For multiuser..
+	UNetClient* Client = nullptr;
 
 	UPROPERTY()
 		UPlayerAnimInstance* Anim;

@@ -100,7 +100,14 @@ void APlayerCharacter::BeginPlay() {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("NO_DoesSocketExist")));
 	}
 
-	// TEMP for multi users..
+	// [TEMP] for multi users..
+	Client = NewObject<UNetClient>();
+	Client->connect("127.0.0.1", 999);
+	Client->login(p_uid);
+	FPlatformProcess::Sleep(1.f);
+	FString m_data = Client->retrieveMessage();
+	
+	/*
 	auto IState = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
 	IState->Client = NewObject<UNetClient>();
 	IState->uid = p_uid;
@@ -109,6 +116,8 @@ void APlayerCharacter::BeginPlay() {
 	FPlatformProcess::Sleep(1.f);
 
 	FString m_data = IState->Client->retrieveMessage();
+	*/
+
 
 	if (!m_data.IsEmpty()) {
 		if (m_data[0] - '0' == LoginOperation::ACCEPT) {
@@ -128,13 +137,13 @@ void APlayerCharacter::ItemInit() {
 	auto IInstance = Cast<UMainGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	auto IState = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
 
-	if (IState->Client->syncPlayerItem()) {
+	if (Client->syncPlayerItem()) {
 		FPlatformProcess::Sleep(1.f);
-		FString m_data = IState->Client->retrieveMessage();
+		FString m_data = Client->retrieveMessage();
 
 		if (!m_data.IsEmpty()) {
 			int num = FCString::Atoi(*m_data.Mid(0, 3));
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green,
 			//	FString::Printf(TEXT("num: %d"), num));
 
 			for (int i = 0; i < num; i++) {
@@ -144,11 +153,9 @@ void APlayerCharacter::ItemInit() {
 				while (m_data[j] == '0') j++;
 				while (m_data[k] == '0') k++;
 
-				auto itemcode = m_data.Mid(j, (7+i*7) - j);
-				auto itemcount = m_data.Mid(k, (11+i*11) - k); //k=8
+				auto itemcode = m_data.Mid(j, (pivot+4) - j);
+				auto itemcount = m_data.Mid(k, (pivot+8) - k); //k=8
 
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
-				//	FString::Printf(TEXT("size: %d"), m_data.Len()));
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, 
 				//	FString::Printf(TEXT("itemcode: %s"), *itemcode));
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
@@ -264,7 +271,7 @@ void APlayerCharacter::PickupItem(UPrimitiveComponent* OverlappedComp, AActor* O
 	auto IIstate = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
 
 	if (IsValid(Item)) {
-		IIstate->Client->passItemInfo(Item->ItemID);
+		Client->passItemInfo(Item->ItemID);
 		if (Inventory->AddItem(Item->ItemID))
 			Item->Destroy();
 	}

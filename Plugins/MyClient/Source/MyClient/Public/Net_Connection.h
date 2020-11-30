@@ -35,6 +35,7 @@ namespace net {
 				if (m_socket.is_open()) {
 					id = uid;
 					readHeader();
+				
 				}
 			}
 		}
@@ -87,8 +88,15 @@ namespace net {
 						else {
 							addToIncomingMessageQueue();
 						}
+
+						if (m_nOwnerType == owner::server) {
+							std::cout << "[" << id << "] read header success.\n";
+						}
 					}
 					else {
+						if (m_nOwnerType == owner::server) {
+							std::cout << "[" << id << "] read header failed.\n";
+						}
 						m_socket.close();
 					}
 
