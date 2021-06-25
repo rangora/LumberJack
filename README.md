@@ -25,7 +25,7 @@ In addition, *payload* should include the required data which header you have ch
 
 ### 3. Log in/out
 
-![login out](C:\Users\나\Desktop\취업포트폴리오\lumberJack\login out.png)
+![login out](https://user-images.githubusercontent.com/30077320/123431197-f777c680-d603-11eb-9531-71554c754401.png)
 
 All clients have a unique `UID` that is composed of integers and it use for all operations.
 
