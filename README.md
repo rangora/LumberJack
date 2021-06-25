@@ -33,7 +33,7 @@ All clients have a unique `UID` that is composed of integers and it use for all 
 
 Notice that required `UID` front of *payload* which it allows accessing private user item table.
 
-![ItemTrans](C:\Users\나\Desktop\취업포트폴리오\lumberJack\ItemTrans.png)
+![img](https://user-images.githubusercontent.com/30077320/123431195-f6df3000-d603-11eb-9ee5-41b50d1a64b8.png)
 
 ```
 1. ITEMOUT  : Subtract item count value in the database.
