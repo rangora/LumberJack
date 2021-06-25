@@ -22,11 +22,6 @@ namespace net {
 			return Body.size();
 		}
 
-		//friend std::ostream& operator<<(ostream& os, const Message<T>& msg) {
-		//	os << "ID: " << int(msg.Header.id) << "Size: " << msg.Header.size;
-		//	return os;
-		//}
-
 		template <typename DataType>
 		friend Message<T>& operator<<(Message<T>& msg, const DataType& data) {
 			static_assert(std::is_standard_layout<DataType>::value, "Data is too complecated.");

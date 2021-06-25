@@ -134,7 +134,12 @@ namespace net {
 					}
 					else {
 						if (m_nOwnerType == owner::server) {
-							std::cout << "[" << id << "] read header fail.\n";
+							std::cout << "[" << id << "] disconnected..\n";
+
+							std::shared_ptr<Connection> s_ptr = this->shared_from_this();
+
+							p_collector.push(s_ptr);
+
 							m_socket.close();
 						}
 					}
@@ -176,5 +181,9 @@ namespace net {
 
 		owner m_nOwnerType = owner::server;
 		uint32_t id = 0;
+	
+	public:
+		uint32_t uid = 0;
+		std::queue<std::shared_ptr<Connection<MessageType>>> p_collector;
 	};
 }

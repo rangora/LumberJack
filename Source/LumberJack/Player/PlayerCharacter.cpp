@@ -88,16 +88,10 @@ void APlayerCharacter::BeginPlay() {
 
 	FName Socket = TEXT("LH_Socket");
 	if (GetMesh()->DoesSocketExist(Socket)) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("DoesSocketExist")));
-		
-		// (TEST)
+
 		Weapon->SetRelativeScale3D(FVector(4.f, 4.f, 4.f));
 		Weapon->SetCollisionProfileName(TEXT("OverlapAll"));
 		Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
-		//
-	}
-	else {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("NO_DoesSocketExist")));
 	}
 
 	// [TEMP] for multi users..
@@ -106,18 +100,6 @@ void APlayerCharacter::BeginPlay() {
 	Client->login(p_uid);
 	FPlatformProcess::Sleep(1.f);
 	FString m_data = Client->retrieveMessage();
-	
-	/*
-	auto IState = Cast<AMainGameState>(UGameplayStatics::GetGameState(GetWorld()));
-	IState->Client = NewObject<UNetClient>();
-	IState->uid = p_uid;
-	IState->Client->connect("127.0.0.1", 999);
-	IState->Client->login(p_uid);
-	FPlatformProcess::Sleep(1.f);
-
-	FString m_data = IState->Client->retrieveMessage();
-	*/
-
 
 	if (!m_data.IsEmpty()) {
 		if (m_data[0] - '0' == LoginOperation::ACCEPT) {
@@ -131,6 +113,13 @@ void APlayerCharacter::BeginPlay() {
 	/*********/
 
 	ItemInit();
+}
+
+void APlayerCharacter::EndPlay(const EEndPlayReason::Type Reason) {
+	Super::EndPlay(Reason);
+
+	Client->logout(p_uid);
+	FPlatformProcess::Sleep(1.f);
 }
 
 void APlayerCharacter::ItemInit() {

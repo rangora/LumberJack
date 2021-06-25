@@ -31,7 +31,9 @@ protected:
 	}
 
 	virtual void onClientDisconnect(std::shared_ptr<net::Connection<MessageType>> client) {
-		std::cout << "Removing client [" << client->getID() << "]\n";
+		std::cout << "Removing user [" << client->uid << "]\n";
+		m_deqConnections.erase(
+			std::remove(m_deqConnections.begin(), m_deqConnections.end(), client), m_deqConnections.end());
 	}
 
 	int retrieveItemData(const char* out, std::string& uid) {
@@ -302,7 +304,7 @@ protected:
 		return false;
 	}
 
-	bool update_login_history(net::Message<MessageType>& msg) {
+	bool update_login_history(net::Message<MessageType>& msg, bool bIn) {
 		std::cout << "[SERVER]: Update Login history..  uid=";
 		std::string m_uid(msg.Body.begin(), msg.Body.end());
 		std::cout << m_uid << "\n";
@@ -331,19 +333,37 @@ protected:
 			return false;
 		}
 		else {
-			raw = "UPDATE login_history SET login_time = NOW() "
-				"WHERE login_history.uid=[U_ID]";
+			if (bIn) {
+				raw = "UPDATE login_history SET login_time = NOW() "
+					"WHERE login_history.uid=[U_ID]";
 
-			iter = raw.find("[U_ID]");
-			raw.replace(iter, 6, m_uid);
-			std::memset((char*)query, 0, 100);
-			std::memcpy((char*)query, raw.c_str(), raw.length());
+				iter = raw.find("[U_ID]");
+				raw.replace(iter, 6, m_uid);
+				std::memset((char*)query, 0, 100);
+				std::memcpy((char*)query, raw.c_str(), raw.length());
 
-			// Update query.
-			if (mysql_query(DBconn, query)) {
-				std::cout << "Error: query.. update_login_history()\n";
-				return false;
+				// Update query.
+				if (mysql_query(DBconn, query)) {
+					std::cout << "Error: lon_in query.. update_login_history()\n";
+					return false;
+				}
 			}
+			else {
+				raw = "UPDATE login_history SET logout_time = NOW() "
+					"WHERE login_history.uid=[U_ID]";
+
+				iter = raw.find("[U_ID]");
+				raw.replace(iter, 6, m_uid);
+				std::memset((char*)query, 0, 100);
+				std::memcpy((char*)query, raw.c_str(), raw.length());
+
+				// Update query.
+				if (mysql_query(DBconn, query)) {
+					std::cout << "Error: log_out query.. update_login_history()\n";
+					return false;
+				}
+			}
+
 		}
 
 		return true;
@@ -366,16 +386,29 @@ protected:
 				std::cout << "[SERVER] inValid user..\n";
 				std::memcpy((char*)reply, "0", 1);
 			}
-			if (!update_login_history(msg)) {
+			if (!update_login_history(msg, true)) {
 				std::cout << "[SERVER] failed to update login history..\n";
 				std::memcpy((char*)reply, "0", 1);
 			}
+
+			std::string uid = std::string(msg.Body.begin(), msg.Body.end());
+			client->uid = std::stoi(uid);
 
 			net::Message<MessageType> msg;
 			msg.gets(reply, 1);
 			client->send(msg);
 
 			std::cout << "\n";
+			break;
+		}
+
+		case MessageType::LOGOUT: {
+			if (!update_login_history(msg, false)) {
+				std::cout << "[SERVER] failed to update login history..\n";
+			}
+
+			std::cout << "[SERVER] Logout success..\n\n";
+
 			break;
 		}
 

@@ -68,13 +68,31 @@ bool UBaseClient::login(int32_t i_uid) {
 	std::memcpy(uid, t_uid, std::strlen(t_uid));
 	uid[4] = '\0';
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,
-	//	FString::Printf(TEXT("c_uid size: %d"), c_uid.Len()));
-
 	msg.gets(uid, std::strlen(uid));
 	send(msg);
 
 
+
+	return true;
+}
+
+bool UBaseClient::logout(int32_t p_uid) {
+	net::Message<MessageType> msg;
+	msg.Header.id = MessageType::LOGOUT;
+
+	FString c_uid = FString::FromInt(p_uid);
+
+	while (c_uid.Len() != 4) c_uid = "0" + c_uid;
+
+	if (uid != nullptr) std::free(uid);
+	uid = (char*)std::malloc(5);
+
+	char* t_uid = (ANSICHAR*)StringCast<ANSICHAR>(*c_uid).Get();
+	std::memcpy(uid, t_uid, std::strlen(t_uid));
+	uid[4] = '\0';
+
+	msg.gets(uid, std::strlen(uid));
+	send(msg);
 
 	return true;
 }

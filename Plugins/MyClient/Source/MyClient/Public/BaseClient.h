@@ -29,6 +29,7 @@ public:
 	 // login.
 	 bool ack();
 	 bool login(int32_t uid);
+	 bool logout(int32_t uid);
 
 	 // item.
 	 bool syncPlayerItem();
